@@ -62,37 +62,13 @@ class Interactions {
 
     processCommands(interaction) {
         for (const category of this.categories) {
-            if (interaction.commandName === `help`) {
-                this.help(interaction);
-                return;
-            }
             if (this.commands[category].includes(interaction.commandName)) {
                 this.modules[category].processCommands(interaction);
             }
         }
-        // let fullCommand = message.content.substr(1) // Remove the leading $
-        // let splitCommand = fullCommand.split(" ") // Split the message up in to pieces for each space
-        // let command = splitCommand[0].toLowerCase() // The first word directly after the $ is the command
-        // let args = splitCommand.slice(1) // All other words are arguments/parameters/options for the command
-        
-        // for (const moduleKey of this.modulesList) {
-        //     if (this.modules[moduleKey].commands.includes(command)) {
-        //         this.modules[moduleKey].processCommands(args, message, command)
-        //         return
-        //     }
-        // }
-
-        // switch (command) {
-        //     // case 'urban': this.urban(args, message); break
-        //     // case 'users': this.handleTags(args, message); break
-        //     // case 'pickup': this.summonToRoom(message); break
-        //     // case 'reload': this.reload(message); break
-        //     // case 'maw2': this.goOffline(message); break
-        //     // case 'ping2': this.ping(message); break
-        //     case 'help2': this.help(args, message); break
-        //     // case 'check': this.check(args, message); break
-        //     default: message.channel.send("*confused hazel noises*")
-        // }
+        switch(interaction.commandName) {
+            case `help`: this.help(interaction); break;
+        }
     }
     
     summonToRoom(message) {
