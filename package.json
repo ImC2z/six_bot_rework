@@ -1,0 +1,37 @@
+{
+  "name": "six_bot_reworked",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000s\u0000i\u0000x\u0000_\u0000b\u0000o\u0000t\u0000_\u0000r\u0000e\u0000w\u0000o\u0000r\u0000k\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --trace-warnings base.js",
+    "register": "node register_global_commands.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ImC2z/six_bot_rework.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ImC2z/six_bot_rework/issues"
+  },
+  "homepage": "https://github.com/ImC2z/six_bot_rework#readme",
+  "dependencies": {
+    "@discordjs/opus": "^0.5.3",
+    "@discordjs/rest": "^0.5.0",
+    "@discordjs/voice": "^0.10.0",
+    "axios": "^0.27.2",
+    "discord-api-types": "^0.35.0",
+    "discord-ytdl-core": "^5.0.4",
+    "discord.js": "^13.8.1",
+    "dotenv": "^16.0.1",
+    "ffmpeg-static": "^4.4.1",
+    "moment": "^2.29.3",
+    "opusscript": "^0.0.8",
+    "ws": "^8.8.0",
+    "ytdl-core": "^4.11.0"
+  }
+}
