@@ -1,9 +1,28 @@
 require('dotenv').config();
 const bot_key = process.env.hazelbotkey;
-const { Client, Intents } = require('discord.js');
-const myIntents = new Intents();
-myIntents.add(Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.DIRECT_MESSAGE_REACTIONS);
-const client = new Client({ intents: myIntents });
+const { Client, GatewayIntentBits, Partials, InteractionType } = require('discord.js');
+const client = new Client(
+    { 
+        intents: [
+            GatewayIntentBits.Guilds, 
+            GatewayIntentBits.GuildMembers, 
+            GatewayIntentBits.GuildMessageReactions, 
+            GatewayIntentBits.GuildMessages, 
+            GatewayIntentBits.GuildVoiceStates, 
+            GatewayIntentBits.GuildPresences, 
+            GatewayIntentBits.DirectMessages, 
+            GatewayIntentBits.DirectMessageReactions
+        ],
+        partials: [
+            Partials.Channel, 
+            Partials.User, 
+            Partials.GuildMember, 
+            Partials.Message, 
+            Partials.Reaction, 
+            Partials.ThreadMember
+        ]
+    }
+);
 const readline = require('readline');
 const rl = readline.createInterface({
     input: process.stdin,
@@ -39,7 +58,7 @@ client.on('ready', () => {
 // });
 
 client.on(`interactionCreate`, interaction => {
-    if (!interaction.isApplicationCommand()) return;
+    if (!interaction.type === InteractionType.ApplicationCommand) return;
     // console.log(interaction);
     interactions.processCommands(interaction);
 })
