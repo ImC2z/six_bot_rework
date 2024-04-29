@@ -29,23 +29,25 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-const Interactions = require('./components/interaction');   
-const interactions = new Interactions("741199072433537104", client);
+const Interactions = require('./components/interactions');
+const Presences = require('./components/presences');
+const VoiceStates = require('./components/voiceStates');
+const homeTalkChannel = "741199072433537104";
+const interactions = new Interactions({client, messageRoomId: homeTalkChannel});
+const presences = new Presences({client});
+const voiceStates = new VoiceStates({client, audioModule: interactions.modules[`audio`]});
 
-client.on('ready', () => {
-    // console.log(`Logged in as ${client.user.tag}!`);
-    client.user.setActivity("my dad play Warframe", {type: "WATCHING"});
-    // client.channels.cache.get(messaging.currentRm).send("*has returned from the TV*")
-    // priceReport();
+client.on('ready', async () => {
+    console.log(`Logged in as ${client.user.tag}!`);
+    presences.onReady();
+    let textChannel = await client.channels.fetch(interactions.messageRoomId);
+    await textChannel.send(`*has come online*`)
     
     async function start() {
         for await (const line of rl) {
             if(line != "") {
-                const textChannel = await client.channels.fetch(interactions.currentRm);
-                const message = await textChannel.send(line);
-                // if (line.startsWith(`$t `)) {
-                //     messaging.processCommands(message)
-                // }
+                textChannel = await client.channels.fetch(interactions.messageRoomId);
+                await textChannel.send(line);
             }
         }
         interactions.goOffline();
@@ -53,14 +55,14 @@ client.on('ready', () => {
     start();
 });
 
-// client.on('messageCreate', ms => {
-//     interactions.handleOnMessage(ms);
-// });
-
 client.on(`interactionCreate`, interaction => {
-    if (!interaction.type === InteractionType.ApplicationCommand) return;
+    if (interaction.type !== InteractionType.ApplicationCommand) return;
     // console.log(interaction);
     interactions.processCommands(interaction);
 })
+
+client.on(`presenceUpdate`, (oldPresence, newPresence) => presences.onPresenceUpdate(oldPresence, newPresence));
+
+client.on(`voiceStateUpdate`, (oldVoiceState, newVoiceState) => voiceStates.onVoiceStateUpdate(oldVoiceState, newVoiceState));
 
 client.login(bot_key);
