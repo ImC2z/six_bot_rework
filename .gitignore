@@ -1,0 +1,6 @@
+.env
+node_modules
+package-lock.json
+tasks.json
+reworked_start.bat
+settings.json
