@@ -1,6 +1,7 @@
 class TestModule {
-    constructor(client) {
-        this.client = client
+    constructor({client, messageRoomId}) {
+        this.client = client;
+        this.messageRoomId = messageRoomId;
     }
 
     processCommands(interaction) {
