@@ -23,16 +23,20 @@
     "@discordjs/collection": "^1.0.0",
     "@discordjs/opus": "^0.8.0",
     "@discordjs/rest": "^1.0.0",
-    "@discordjs/voice": "^0.11.0",
-    "axios": "^0.27.2",
+    "@discordjs/voice": "^0.16.0",
+    "@distube/ytdl-core": "^4.13.3",
+    "axios": "^1.6.2",
     "discord-api-types": "^0.35.0",
     "discord-ytdl-core": "^5.0.4",
-    "discord.js": "^14.0.1",
+    "discord.js": "^14.11.0",
     "dotenv": "^16.0.1",
-    "ffmpeg-static": "^4.4.1",
+    "ffmpeg-static": "^5.1.0",
+    "lodash": "^4.17.21",
     "moment": "^2.29.3",
     "opusscript": "^0.0.8",
+    "play-dl": "^1.9.7",
+    "sodium-native": "^4.0.1",
     "ws": "^8.8.0",
-    "ytdl-core": "^4.11.0"
+    "ytdl-core": "^4.11.5"
   }
 }
