@@ -1,9 +1,6 @@
 const VSUpdate = {
-    leave: -1,
-    lastLeave: 0,
-    firstEnter: 1,
-    enter: 2,
-    misc: 3
+    firstEntry: 1,
+    lastExit: 2
 };
 
 class VoiceStates {
@@ -12,51 +9,35 @@ class VoiceStates {
         this.audioModule = audioModule;
     }
 
-    getUpdateType(oldVoiceState, newVoiceState) {
-        const {channel: oldChannel, channelId: oldId} = oldVoiceState;
-        const {channel: newChannel, channelId: newId} = newVoiceState;
+    getEntryLeaveActions(oldVoiceState, newVoiceState) {
+        const {channelId: oldId, channel: oldChannel} = oldVoiceState;
+        const {channelId: newId, channel: newChannel} = newVoiceState;
+        const actions = [];
         if (oldId !== newId) {
-            if (!oldId) { // enter
-                return newChannel.members.size === 1 ? VSUpdate.firstEnter : VSUpdate.enter;
-            } else if (!newId) { // leave
-                return oldChannel.members.size === 0 ? VSUpdate.lastLeave : VSUpdate.leave;
+            if (!!oldChannel && oldChannel.members.size === 0) { // last exit action
+                actions.push(VSUpdate.lastExit);
+            }
+            if (!!newChannel && newChannel.members.size === 1) { // first entry action
+                actions.push(VSUpdate.firstEntry);
             }
         }
-        return VSUpdate.misc;
+        return actions;
     }
 
     async onVoiceStateUpdate(oldVoiceState, newVoiceState) {
-        const channelList = this.audioModule.trackedVoiceChannels;
-        const {channel: oldChannel, channelId: oldId} = oldVoiceState;
-        const {channel: newChannel, channelId: newId} = newVoiceState;
-        // if (oldId !== newId) {
-        //     if (!!oldId && oldChannel.members.size === 1 && oldChannel.members.hasAny(this.client.user.id)) {
-        //         await this.audioModule.leave({interaction: null, shouldReply: false});
-        //     }
-        // }
-        switch(this.getUpdateType(oldVoiceState, newVoiceState)) {
-            case VSUpdate.firstEnter: {
-                if (!!channelList[newId]) {
-                    const {voice, roles, text} = channelList[newId];
-                    const textChannel = await this.client.channels.fetch(text.textId);
-                    await textChannel.send(`Noise Activity detected at \`${voice.voiceName}\`. Alerting all ${roles.map(role => `<@&${role.roleId}>`).join(`, `)}...`);
-                }
-                break;
-            }
-            case VSUpdate.leave: {
-                if (oldChannel.members.size === 1 && oldChannel.members.hasAny(this.client.user.id)) {
-                    await this.audioModule.leave({interaction: null, shouldReply: false});
-                }
-                break;
-            }
-            case VSUpdate.lastLeave: {
-                if (!!channelList[oldId]) {
-                    const {voice, text} = channelList[oldId];
-                    const textChannel = await this.client.channels.fetch(text.textId);
-                    await textChannel.send(`Activity ceased at \`${voice.voiceName}\`.`);
-                }
-                break;
-            }
+        const trackedChannels = this.audioModule.trackedVoiceChannels;
+        const {channelId: oldId} = oldVoiceState;
+        const {channelId: newId} = newVoiceState;
+        const actions = this.getEntryLeaveActions(oldVoiceState, newVoiceState);
+        if (actions.includes(VSUpdate.firstEntry) && !!trackedChannels[newId]) {
+            const {voice, roles, text} = trackedChannels[newId];
+            const textChannel = await this.client.channels.fetch(text.textId);
+            await textChannel.send(`Noise Activity detected at \`${voice.voiceName}\`. Alerting all ${roles.map(role => `<@&${role.roleId}>`).join(`, `)}...`);
+        }
+        if (actions.includes(VSUpdate.lastExit) && !!trackedChannels[oldId]) {
+            const {voice, text} = trackedChannels[oldId];
+            const textChannel = await this.client.channels.fetch(text.textId);
+            await textChannel.send(`Activity ceased at \`${voice.voiceName}\`.`);
         }
     }
 }
