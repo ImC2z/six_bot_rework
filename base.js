@@ -37,6 +37,22 @@ const interactions = new Interactions({client, messageRoomId: homeTalkChannel});
 const presences = new Presences({client});
 const voiceStates = new VoiceStates({client, audioModule: interactions.modules[`audio`]});
 
+async function clientShutdown() {
+    await interactions.close();
+    await client.channels.cache.get(homeTalkChannel).send(`*has gone offline*`);
+    await client.destroy();
+    console.log(`Program: prg is kill 2`);
+    process.exit();
+}
+
+process.on("SIGHUP", async () => {
+    await clientShutdown();
+});
+
+process.on("SIGTERM", async () => {
+    await clientShutdown();
+});
+
 client.on('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`);
     presences.onReady();
@@ -50,7 +66,7 @@ client.on('ready', async () => {
                 await textChannel.send(line);
             }
         }
-        interactions.goOffline();
+        await clientShutdown();
     }
     start();
 });
@@ -59,7 +75,7 @@ client.on(`interactionCreate`, interaction => {
     if (interaction.type !== InteractionType.ApplicationCommand) return;
     // console.log(interaction);
     interactions.processCommands(interaction);
-})
+});
 
 client.on(`presenceUpdate`, (oldPresence, newPresence) => presences.onPresenceUpdate(oldPresence, newPresence));
 
