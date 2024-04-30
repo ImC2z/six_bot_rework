@@ -1,0 +1,74 @@
+{
+	"1020309794344669204": {
+		"guild": "69 HOEm",
+		"voice": {
+			"voiceName": "WARFSTACHEFRAME",
+			"voiceId": "1020309794344669204"
+		},
+		"text": {
+			"textName": "tok",
+			"textId": "734725782479437874"
+		},
+		"roles": [
+			{
+				"roleName": "10-0",
+				"roleId": "1020309525489778719"
+			},
+			{
+				"roleName": "Sentient GoPro",
+				"roleId": "734677466139852843"
+			}
+		]
+	},
+	"1189121313743323166": {
+		"guild": "69 HOEm",
+		"voice": {
+			"voiceName": "FATALFIRM",
+			"voiceId": "1189121313743323166"
+		},
+		"text": {
+			"textName": "tok",
+			"textId": "734725782479437874"
+		},
+		"roles": [
+			{
+				"roleName": "Interns",
+				"roleId": "948521366838206494"
+			}
+		]
+	},
+	"933968779598245898": {
+		"guild": "69 HOEm",
+		"voice": {
+			"voiceName": "My Struggle w/ blocks",
+			"voiceId": "933968779598245898"
+		},
+		"text": {
+			"textName": "tok",
+			"textId": "734725782479437874"
+		},
+		"roles": [
+			{
+				"roleName": "Mein Kampf Men",
+				"roleId": "929238799790256178"
+			}
+		]
+	},
+	"934452887164178513": {
+		"guild": "69 HOEm",
+		"voice": {
+			"voiceName": "skribbl",
+			"voiceId": "934452887164178513"
+		},
+		"text": {
+			"textName": "skribbl",
+			"textId": "734674030069678123"
+		},
+		"roles": [
+			{
+				"roleName": "Starving Artists",
+				"roleId": "934452980688777286"
+			}
+		]
+	}
+}
