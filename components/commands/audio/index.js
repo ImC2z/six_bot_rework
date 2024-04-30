@@ -1,5 +1,6 @@
 require('dotenv').config();
-const { joinVoiceChannel, createAudioPlayer, createAudioResource, entersState, AudioPlayerStatus, VoiceConnectionStatus } = require(`@discordjs/voice`)
+const fs = require(`fs`);
+const { joinVoiceChannel, createAudioPlayer, createAudioResource, entersState, AudioPlayerStatus, VoiceConnectionStatus } = require(`@discordjs/voice`);
 const ytdl = require("@distube/ytdl-core");
 const play = require(`play-dl`);
 const ytSearch = require(`../../../api/ytSearch`);
@@ -97,6 +98,7 @@ class AudioModule {
         this.current = undefined;
         this.queue = [];
         this.loopMode = LoopMode.None;
+        this.trackedVoiceChannels = JSON.parse(fs.readFileSync(`./data/tracked_voice_channels.json`, `utf8`));
     }
 
     constructAudioPlayer() {
@@ -136,6 +138,8 @@ class AudioModule {
             case `sh`: await this.shuffleQueue({interaction}); break;
             case `rm`: await this.removeFromQueue({interaction}); break;
             case `go`: await this.remoteJoin({interaction}); break;
+            case `inform`: await this.informRole({interaction}); break;
+            case `uninformall`: await this.uninformAllRoles({interaction}); break;
         }
     }
 
@@ -485,6 +489,38 @@ class AudioModule {
         const targetChannel = interaction.options.getChannel(`channel`);
         this.handleJoin(targetChannel);
         await interaction.reply(`remote hello @ \`${targetChannel.name}\``);    
+    }
+
+    async informRole({interaction}) {
+        const voiceChannel = interaction.options.getChannel(`voice`);
+        const {name: voiceName, id: voiceId} = voiceChannel;
+        const {name: roleName, id: roleId} = interaction.options.getRole(`role`);
+        const {name: textName, id: textId} = interaction.options.getChannel(`text`) || interaction.channel;
+        if (!this.trackedVoiceChannels[voiceId]) {
+            this.trackedVoiceChannels[voiceId] = {
+                guild: voiceChannel.guild.name,
+                voice: {voiceName, voiceId},
+                text: {textName, textId},
+                roles: [{roleName, roleId}]
+            }
+        } else {
+            if (!this.trackedVoiceChannels[voiceId].roles.some(roleInfo => roleInfo.roleId === roleId)) {
+                this.trackedVoiceChannels[voiceId].roles.push({roleName, roleId});
+            }
+            this.trackedVoiceChannels[voiceId].text = {textName, textId} // override old channel
+        }
+        fs.writeFileSync(`./data/tracked_voice_channels.json`, JSON.stringify(this.trackedVoiceChannels, null, `\t`));
+        await interaction.reply(`Tracking \`${voiceName}\` activity @ \`${textName}\` for ${this.trackedVoiceChannels[voiceId].roles.length} role(s).`)
+    }
+
+    async uninformAllRoles({interaction}) {
+        const {name: voiceName, id: voiceId} = interaction.options.getChannel(`voice`);
+        if (!!this.trackedVoiceChannels[voiceId]) {
+            delete this.trackedVoiceChannels[voiceId];
+            await interaction.reply(`Untracked \`${voiceName}\` activity for all roles.`);
+        } else {
+            await interaction.reply(`No changes made.`);
+        }
     }
 
     async close() {
