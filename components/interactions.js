@@ -1,4 +1,4 @@
-const fs = require('fs')
+const fs = require('fs');
 
 class Interactions {
     constructor({client, messageRoomId}) {
@@ -41,14 +41,6 @@ class Interactions {
         for (const module of Object.values(this.modules)) {
             await module.close();
         }
-        // this.client.channels.cache.get(this.messageRoomId).send(`*has gone offline*`)
-        // .then(() => {
-        //     this.client.destroy();
-        // })
-        // .then(() => {
-        //     process.exit();
-        // });
-        // console.log("Program: prg is kill 2");
     }
 
     async help(interaction) {
