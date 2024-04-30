@@ -495,7 +495,7 @@ class AudioModule {
         const voiceChannel = interaction.options.getChannel(`voice`);
         const {name: voiceName, id: voiceId} = voiceChannel;
         const {name: roleName, id: roleId} = interaction.options.getRole(`role`);
-        const {name: textName, id: textId} = interaction.options.getChannel(`text`) || interaction.channel;
+        const {name: textName, id: textId} = interaction.options.getChannel(`text`);
         if (!this.trackedVoiceChannels[voiceId]) {
             this.trackedVoiceChannels[voiceId] = {
                 guild: voiceChannel.guild.name,
