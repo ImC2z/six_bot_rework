@@ -4,12 +4,12 @@ class TestModule {
         this.messageRoomId = messageRoomId;
     }
 
-    processCommands(interaction) {
+    async processCommands(interaction) {
         switch(interaction.commandName) {
-            case `ping`: this.ping(interaction); break;
-            case `crashbang`: this.crashbang(interaction); break;
-            case `iatest`: this.iatest(interaction); break;
-            case `r`: this.repeat(interaction); break;
+            case `ping`: await this.ping(interaction); break;
+            case `crashbang`: await this.crashbang(interaction); break;
+            case `iatest`: await this.iatest(interaction); break;
+            case `r`: await this.repeat(interaction); break;
         }
     }
 
