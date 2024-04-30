@@ -37,18 +37,18 @@ class Interactions {
         message.channel.send(`${message.author.toString()} *aaaaaaaaaa*`)
     }
     
-    goOffline() {
+    async close() {
         for (const module of Object.values(this.modules)) {
-            module.close();
+            await module.close();
         }
-        this.client.channels.cache.get(this.messageRoomId).send(`*has gone offline*`)
-        .then(() => {
-            this.client.destroy();
-        })
-        .then(() => {
-            process.exit();
-        });
-        console.log("Program: prg is kill 2");
+        // this.client.channels.cache.get(this.messageRoomId).send(`*has gone offline*`)
+        // .then(() => {
+        //     this.client.destroy();
+        // })
+        // .then(() => {
+        //     process.exit();
+        // });
+        // console.log("Program: prg is kill 2");
     }
 
     async help(interaction) {
