@@ -20,21 +20,16 @@ class Interactions {
         }
     }
 
-    processCommands(interaction) {
+    async processCommands(interaction) {
         for (const category of Object.keys(this.modules)) {
             if (this.commands[category].includes(interaction.commandName)) {
-                this.modules[category].processCommands(interaction);
+                await this.modules[category].processCommands(interaction);
                 return;
             }
         }
         switch(interaction.commandName) {
             case `help`: this.help(interaction); break;
         }
-    }
-    
-    summonToRoom(message) {
-        this.messageRoomId = message.channel.id
-        message.channel.send(`${message.author.toString()} *aaaaaaaaaa*`)
     }
     
     async close() {

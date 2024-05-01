@@ -71,14 +71,14 @@ client.on('ready', async () => {
     start();
 });
 
-client.on(`interactionCreate`, interaction => {
-    if (interaction.type !== InteractionType.ApplicationCommand) return;
-    // console.log(interaction);
-    interactions.processCommands(interaction);
+client.on(`interactionCreate`, async (interaction) => {
+    if (interaction.type === InteractionType.ApplicationCommand) {
+        await interactions.processCommands(interaction);
+    }
 });
 
 client.on(`presenceUpdate`, (oldPresence, newPresence) => presences.onPresenceUpdate(oldPresence, newPresence));
 
-client.on(`voiceStateUpdate`, (oldVoiceState, newVoiceState) => voiceStates.onVoiceStateUpdate(oldVoiceState, newVoiceState));
+client.on(`voiceStateUpdate`, async (oldVoiceState, newVoiceState) => await voiceStates.onVoiceStateUpdate(oldVoiceState, newVoiceState));
 
 client.login(bot_key);
