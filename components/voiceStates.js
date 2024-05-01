@@ -29,15 +29,15 @@ class VoiceStates {
         const {channelId: oldId} = oldVoiceState;
         const {channelId: newId} = newVoiceState;
         const actions = this.getEntryLeaveActions(oldVoiceState, newVoiceState);
-        if (actions.includes(VSUpdate.firstEntry) && !!trackedChannels[newId]) {
-            const {voice, roles, text} = trackedChannels[newId];
-            const textChannel = await this.client.channels.fetch(text.textId);
-            await textChannel.send(`Noise Activity detected at \`${voice.voiceName}\`. Alerting all ${roles.map(role => `<@&${role.roleId}>`).join(`, `)}...`);
-        }
         if (actions.includes(VSUpdate.lastExit) && !!trackedChannels[oldId]) {
             const {voice, text} = trackedChannels[oldId];
             const textChannel = await this.client.channels.fetch(text.textId);
             await textChannel.send(`Activity ceased at \`${voice.voiceName}\`.`);
+        }
+        if (actions.includes(VSUpdate.firstEntry) && !!trackedChannels[newId]) {
+            const {voice, roles, text} = trackedChannels[newId];
+            const textChannel = await this.client.channels.fetch(text.textId);
+            await textChannel.send(`Noise Activity detected at \`${voice.voiceName}\`. Alerting all ${roles.map(role => `<@&${role.roleId}>`).join(`, `)}...`);
         }
     }
 }
