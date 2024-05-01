@@ -517,6 +517,7 @@ class AudioModule {
         const {name: voiceName, id: voiceId} = interaction.options.getChannel(`voice`);
         if (!!this.trackedVoiceChannels[voiceId]) {
             delete this.trackedVoiceChannels[voiceId];
+            fs.writeFileSync(`./data/tracked_voice_channels.json`, JSON.stringify(this.trackedVoiceChannels, null, `\t`));
             await interaction.reply(`Untracked \`${voiceName}\` activity for all roles.`);
         } else {
             await interaction.reply(`No changes made.`);
