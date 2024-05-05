@@ -1,25 +1,4 @@
 {
-	"1020309794344669204": {
-		"guild": "69 HOEm",
-		"voice": {
-			"voiceName": "WARFSTACHEFRAME",
-			"voiceId": "1020309794344669204"
-		},
-		"text": {
-			"textName": "tok",
-			"textId": "734725782479437874"
-		},
-		"roles": [
-			{
-				"roleName": "10-0",
-				"roleId": "1020309525489778719"
-			},
-			{
-				"roleName": "Sentient GoPro",
-				"roleId": "734677466139852843"
-			}
-		]
-	},
 	"1189121313743323166": {
 		"guild": "69 HOEm",
 		"voice": {
@@ -68,6 +47,23 @@
 			{
 				"roleName": "Starving Artists",
 				"roleId": "934452980688777286"
+			}
+		]
+	},
+	"1020309794344669204": {
+		"guild": "69 HOEm",
+		"voice": {
+			"voiceName": "WARFSTACHEFRAME",
+			"voiceId": "1020309794344669204"
+		},
+		"text": {
+			"textName": "tok",
+			"textId": "734725782479437874"
+		},
+		"roles": [
+			{
+				"roleName": "10-0",
+				"roleId": "1020309525489778719"
 			}
 		]
 	}
