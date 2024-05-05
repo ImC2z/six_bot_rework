@@ -1,7 +1,8 @@
 require('dotenv').config();
 const fs = require(`fs`);
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, entersState, AudioPlayerStatus, VoiceConnectionStatus } = require(`@discordjs/voice`);
-const ytdl = require("@distube/ytdl-core");
+// const ytdl = require("@distube/ytdl-core");
+const ytdl = require("ytdl-core");
 const play = require(`play-dl`);
 const ytSearch = require(`../../../api/ytSearch`);
 const loadPlaylist = require('../../../api/loadPlaylist');
@@ -12,13 +13,7 @@ const cookies = [
     { name: "cookie1", value: process.env.YTcookies }
 ];
 
-const agent = ytdl.createAgent(cookies);
-
-// play.setToken({
-//     youtube: {
-//         cookie: process.env.YTcookies
-//     }
-// });
+// const agent = ytdl.createAgent(cookies);
 
 const videoPrefixes = [
     `https://youtu.be/`,
@@ -229,14 +224,13 @@ class AudioModule {
                         filter: 'audioonly',
                         quality: 'highestaudio',
                         highWaterMark: 1<<62,
-                        agent: agent,
-                        // opusEncoded: true,
-                        // encoderArgs: ['-af', `bass=g=${this.current.b},treble=g=${this.current.t}`],
-                        // requestOptions: {
-                        //     headers: {
-                        //         cookie: process.env.YTcookies
-                        //     }
-                        // }
+                        // agent: agent,
+                        opusEncoded: true,
+                        requestOptions: {
+                            headers: {
+                                cookie: process.env.YTcookies
+                            }
+                        }
                     }
                 )));
                 this.playingStatus = true;
@@ -249,7 +243,7 @@ class AudioModule {
         if (!!this.voiceConnection) {
             callback();
         } else {
-            await interaction.reply(`Failed to join a voice channel`);
+            await interaction.reply(`Failed to join. (caller not in a voice channel)`);
         }
     }
 
@@ -504,7 +498,7 @@ class AudioModule {
                 roles: [{roleName, roleId}]
             }
         } else {
-            if (!this.trackedVoiceChannels[voiceId].roles.some(roleInfo => roleInfo.roleId === roleId)) {
+            if (!this.trackedVoiceChannels[voiceId].roles.some(role => role.roleId === roleId)) {
                 this.trackedVoiceChannels[voiceId].roles.push({roleName, roleId});
             }
             this.trackedVoiceChannels[voiceId].text = {textName, textId} // override old channel
