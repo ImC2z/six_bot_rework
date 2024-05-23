@@ -487,30 +487,46 @@ class AudioModule {
 
     async informRole({interaction}) {
         const voiceChannel = interaction.options.getChannel(`voice`);
-        const {name: voiceName, id: voiceId} = voiceChannel;
+        const {name: voiceName, id: voiceId, guild} = voiceChannel;
         const {name: roleName, id: roleId} = interaction.options.getRole(`role`);
         const {name: textName, id: textId} = interaction.options.getChannel(`text`);
-        if (!this.trackedVoiceChannels[voiceId]) {
-            this.trackedVoiceChannels[voiceId] = {
-                guild: voiceChannel.guild.name,
-                voice: {voiceName, voiceId},
-                text: {textName, textId},
-                roles: [{roleName, roleId}]
-            }
+        const {name: guildName, id: guildId} = guild;
+        if (!this.trackedVoiceChannels[guildId]) {
+            this.trackedVoiceChannels[guildId] = {
+                guildName,
+                voiceChannels: {
+                    [voiceId]: {
+                        voiceName,
+                        text: {textName, textId},
+                        roles: {
+                            [roleId]: roleName
+                        }
+                    }
+                }
+            };
         } else {
-            if (!this.trackedVoiceChannels[voiceId].roles.some(role => role.roleId === roleId)) {
-                this.trackedVoiceChannels[voiceId].roles.push({roleName, roleId});
+            if (!this.trackedVoiceChannels[guildId].voiceChannels[voiceId]) {
+                this.trackedVoiceChannels[guildId].voiceChannels[voiceId] = {
+                    voiceName,
+                    text: {textName, textId},
+                    roles: {
+                        [roleId]: roleName
+                    }
+                };
+            } else {
+                this.trackedVoiceChannels[guildId].voiceChannels[voiceId].roles[roleId] = roleName;
+                this.trackedVoiceChannels[guildId].voiceChannels[voiceId].text = {textName, textId};
             }
-            this.trackedVoiceChannels[voiceId].text = {textName, textId} // override old channel
         }
         fs.writeFileSync(`./data/tracked_voice_channels.json`, JSON.stringify(this.trackedVoiceChannels, null, `\t`));
-        await interaction.reply(`Tracking \`${voiceName}\` activity @ \`${textName}\` for ${this.trackedVoiceChannels[voiceId].roles.length} role(s).`)
+        const rolesCount = Object.keys(this.trackedVoiceChannels[guildId].voiceChannels[voiceId].roles).length;
+        await interaction.reply(`Tracking \`${voiceName}\` activity @ \`${textName}\` for ${rolesCount} role(s).`);
     }
 
     async uninformAllRoles({interaction}) {
-        const {name: voiceName, id: voiceId} = interaction.options.getChannel(`voice`);
-        if (!!this.trackedVoiceChannels[voiceId]) {
-            delete this.trackedVoiceChannels[voiceId];
+        const {name: voiceName, id: voiceId, guildId} = interaction.options.getChannel(`voice`);
+        if (!!this.trackedVoiceChannels[guildId].voiceChannels[voiceId]) {
+            delete this.trackedVoiceChannels[guildId].voiceChannels[voiceId];
             fs.writeFileSync(`./data/tracked_voice_channels.json`, JSON.stringify(this.trackedVoiceChannels, null, `\t`));
             await interaction.reply(`Untracked \`${voiceName}\` activity for all roles.`);
         } else {
