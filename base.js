@@ -11,7 +11,8 @@ const client = new Client(
             GatewayIntentBits.GuildVoiceStates, 
             GatewayIntentBits.GuildPresences, 
             GatewayIntentBits.DirectMessages, 
-            GatewayIntentBits.DirectMessageReactions
+            GatewayIntentBits.DirectMessageReactions,
+            GatewayIntentBits.GuildScheduledEvents
         ],
         partials: [
             Partials.Channel, 
@@ -32,10 +33,12 @@ const rl = readline.createInterface({
 const Interactions = require('./components/interactions');
 const Presences = require('./components/presences');
 const VoiceStates = require('./components/voiceStates');
+const ScheduledEvents = require('./components/scheduledEvents');
 const homeTalkChannel = "741199072433537104";
 const interactions = new Interactions({client, messageRoomId: homeTalkChannel});
 const presences = new Presences({client});
 const voiceStates = new VoiceStates({client, audioModule: interactions.modules[`audio`]});
+const scheduledEvents = new ScheduledEvents({client, audioModule: interactions.modules[`audio`]});
 
 async function clientShutdown() {
     await interactions.close();
@@ -45,19 +48,16 @@ async function clientShutdown() {
     process.exit();
 }
 
-process.on("SIGHUP", async () => {
-    await clientShutdown();
-});
+process.on("SIGHUP", clientShutdown);
 
-process.on("SIGTERM", async () => {
-    await clientShutdown();
-});
+process.on("SIGTERM", clientShutdown);
 
 client.on('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`);
     presences.onReady();
+    scheduledEvents.onReady();
     let textChannel = await client.channels.fetch(interactions.messageRoomId);
-    await textChannel.send(`*has come online*`)
+    await textChannel.send(`*has come online*`);
     
     async function start() {
         for await (const line of rl) {
@@ -80,5 +80,7 @@ client.on(`interactionCreate`, async (interaction) => {
 client.on(`presenceUpdate`, (oldPresence, newPresence) => presences.onPresenceUpdate(oldPresence, newPresence));
 
 client.on(`voiceStateUpdate`, async (oldVoiceState, newVoiceState) => await voiceStates.onVoiceStateUpdate(oldVoiceState, newVoiceState));
+
+client.on(`guildScheduledEventCreate`, async (guildEvent) => await scheduledEvents.onEventCreate(guildEvent))
 
 client.login(bot_key);
