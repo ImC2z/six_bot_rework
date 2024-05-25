@@ -34,10 +34,24 @@ class ScheduledEvents {
             const {voiceChannels} = this.audioModule.trackedVoiceChannels[guildId];
             const guild = await this.client.guilds.fetch(guildId);
             const {scheduledEvents} = guild;
-            for (const event of scheduledEvents.cache.values()) {
-                if (!!event.channelId && !!voiceChannels[event.channelId] && now >= event.scheduledStartAt && event.isScheduled()) {
+            // console.log(Array.from(scheduledEvents.cache.values()));
+            const events = Array.from(scheduledEvents.cache.values());
+            const activeChannelEvents = events
+            .filter(event => event.isActive())
+            .reduce((total, event) => {
+                total[event.channelId] = event;
+                return total;
+            }, {});
+            const waitingEvents = events.filter(event => event.isScheduled());
+            for (const event of waitingEvents) {
+                const {channelId} = event;
+                if (!!channelId && !!voiceChannels[channelId] && now >= event.scheduledStartAt) {
+                    if (!!activeChannelEvents[channelId]) {
+                        activeChannelEvents[channelId].setStatus(GuildScheduledEventStatus.Completed);
+                    }
+                    activeChannelEvents[channelId] = event;
                     event.setStatus(GuildScheduledEventStatus.Active);
-                    const {voiceName, text, roles} = voiceChannels[event.channelId];
+                    const {voiceName, text, roles} = voiceChannels[channelId];
                     const textChannel = await this.client.channels.fetch(text.textId);
                     await textChannel.send(`${Object.keys(roles).map(role => `<@&${role}>`).join(` `)} VC Event started at \`${voiceName}\`.`)
                 }
