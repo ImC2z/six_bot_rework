@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require(`discord.js`);
 
-const prompt = new SlashCommandBuilder()
-.setName(`prompt`)
+const chat = new SlashCommandBuilder()
+.setName(`chat`)
 .setDescription(`Ask OpenAI about (almost) anything`)
 .addStringOption(option => 
     option.setName(`query`)
@@ -10,4 +10,4 @@ const prompt = new SlashCommandBuilder()
     .setMaxLength(300)
 );
 
-module.exports = prompt;
+module.exports = chat;
