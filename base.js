@@ -1,6 +1,6 @@
 require('dotenv').config();
 const bot_key = process.env.hazelbotkey;
-const { Client, GatewayIntentBits, Partials, InteractionType } = require('discord.js');
+const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const client = new Client(
     { 
         intents: [
@@ -42,7 +42,7 @@ const scheduledEvents = new ScheduledEvents({client, audioModule: interactions.m
 
 async function clientShutdown() {
     await interactions.close();
-    await client.channels.cache.get(homeTalkChannel).send(`*has gone offline*`);
+    // await client.channels.cache.get(homeTalkChannel).send(`*has gone offline*`);
     await client.destroy();
     console.log(`Program: prg is kill 2`);
     process.exit();
@@ -57,7 +57,7 @@ client.on('ready', async () => {
     presences.onReady();
     scheduledEvents.onReady();
     let textChannel = await client.channels.fetch(interactions.messageRoomId);
-    await textChannel.send(`*has come online*`);
+    // await textChannel.send(`*has come online*`);
     
     async function start() {
         for await (const line of rl) {
@@ -71,16 +71,12 @@ client.on('ready', async () => {
     start();
 });
 
-client.on(`interactionCreate`, async (interaction) => {
-    if (interaction.type === InteractionType.ApplicationCommand) {
-        await interactions.processCommands(interaction);
-    }
-});
+client.on(`interactionCreate`, interactions.processCommands);
 
-client.on(`presenceUpdate`, (oldPresence, newPresence) => presences.onPresenceUpdate(oldPresence, newPresence));
+client.on(`presenceUpdate`, presences.onPresenceUpdate);
 
-client.on(`voiceStateUpdate`, async (oldVoiceState, newVoiceState) => await voiceStates.onVoiceStateUpdate(oldVoiceState, newVoiceState));
+client.on(`voiceStateUpdate`, voiceStates.onVoiceStateUpdate);
 
-client.on(`guildScheduledEventCreate`, async (guildEvent) => await scheduledEvents.onEventCreate(guildEvent))
+client.on(`guildScheduledEventCreate`, scheduledEvents.onEventCreate);
 
 client.login(bot_key);
