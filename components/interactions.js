@@ -1,3 +1,4 @@
+const { InteractionType } = require('discord.js');
 const fs = require('fs');
 
 class Interactions {
@@ -18,17 +19,21 @@ class Interactions {
             const commandFiles = fs.readdirSync(`./components/commands/${category}`).filter(file => file !== `index.js`);
             this.commands[category] = commandFiles.map(commandFile => require(`./commands/${category}/${commandFile}`).toJSON().name);
         }
+
+        this.processCommands = this.processCommands.bind(this);
     }
 
     async processCommands(interaction) {
-        for (const category of Object.keys(this.modules)) {
-            if (this.commands[category].includes(interaction.commandName)) {
-                await this.modules[category].processCommands(interaction);
-                return;
+        if (interaction.type === InteractionType.ApplicationCommand) {
+            for (const category of Object.keys(this.modules)) {
+                if (this.commands[category].includes(interaction.commandName)) {
+                    await this.modules[category].processCommands(interaction);
+                    return;
+                }
             }
-        }
-        switch(interaction.commandName) {
-            case `help`: this.help(interaction); break;
+            switch(interaction.commandName) {
+                case `help`: this.help(interaction); break;
+            }
         }
     }
     

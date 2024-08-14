@@ -6,6 +6,7 @@ const musicApps = [`Spotify`];
 class Presences {
     constructor({client}) {
         this.client = client;
+        this.onPresenceUpdate = this.onPresenceUpdate.bind(this);
     }
 
     onReady() {

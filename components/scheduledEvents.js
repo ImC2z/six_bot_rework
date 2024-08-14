@@ -4,10 +4,12 @@ class ScheduledEvents {
     constructor({client, audioModule}) {
         this.client = client;
         this.audioModule = audioModule;
+        this.onEventCreate = this.onEventCreate.bind(this);
+        this.checkForEvent = this.checkForEvent.bind(this);
     }
 
     onReady() {
-        setInterval(async () => await this.checkForEvent(), 30_000);
+        setInterval(this.checkForEvent, 30_000);
     }
 
     async onEventCreate(guildEvent) {
@@ -42,7 +44,9 @@ class ScheduledEvents {
                 total[event.channelId] = event;
                 return total;
             }, {});
+            // console.log(activeChannelEvents);
             const waitingEvents = events.filter(event => event.isScheduled());
+            // console.log(waitingEvents);
             for (const event of waitingEvents) {
                 const {channelId} = event;
                 if (!!channelId && !!voiceChannels[channelId] && now >= event.scheduledStartAt) {
@@ -51,9 +55,9 @@ class ScheduledEvents {
                     }
                     activeChannelEvents[channelId] = event;
                     event.setStatus(GuildScheduledEventStatus.Active);
-                    const {voiceName, text, roles} = voiceChannels[channelId];
-                    const textChannel = await this.client.channels.fetch(text.textId);
-                    await textChannel.send(`${Object.keys(roles).map(role => `<@&${role}>`).join(` `)} VC Event started at \`${voiceName}\`.`)
+                    // const {voiceName, text, roles} = voiceChannels[channelId];
+                    // const textChannel = await this.client.channels.fetch(text.textId);
+                    // await textChannel.send(`${Object.keys(roles).map(role => `<@&${role}>`).join(` `)} VC Event started at \`${voiceName}\`.`)
                 }
             }
         }

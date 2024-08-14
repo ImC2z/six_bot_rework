@@ -8,6 +8,7 @@ class VoiceStates {
     constructor({client, audioModule}) {
         this.client = client;
         this.audioModule = audioModule;
+        this.onVoiceStateUpdate = this.onVoiceStateUpdate.bind(this);
     }
 
     getEntryLeaveActions(oldVoiceState, newVoiceState) {
@@ -33,8 +34,8 @@ class VoiceStates {
         const {channelId: oldId, channel: oldChannel} = oldVoiceState;
         const {channelId: newId} = newVoiceState;
         const actions = this.getEntryLeaveActions(oldVoiceState, newVoiceState);
-        for (const guild of Object.keys(this.audioModule.trackedVoiceChannels)) {
-            const {voiceChannels} = this.audioModule.trackedVoiceChannels[guild];
+        for (const guildId of Object.keys(this.audioModule.trackedVoiceChannels)) {
+            const {voiceChannels} = this.audioModule.trackedVoiceChannels[guildId];
             if (actions.includes(VSUpdate.lastExit) && !!voiceChannels[oldId]) {
                 const {voiceName, text} = voiceChannels[oldId];
                 const textChannel = await this.client.channels.fetch(text.textId);
