@@ -1,8 +1,8 @@
 require('dotenv').config();
 const fs = require(`fs`);
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, entersState, AudioPlayerStatus, VoiceConnectionStatus } = require(`@discordjs/voice`);
-// const ytdl = require("@distube/ytdl-core");
-const ytdl = require("ytdl-core");
+const ytdl = require("@distube/ytdl-core");
+// const ytdl = require("ytdl-core");
 const play = require(`play-dl`);
 const ytSearch = require(`../../../api/ytSearch`);
 const loadPlaylist = require('../../../api/loadPlaylist');
@@ -13,7 +13,7 @@ const cookies = [
     { name: "cookie1", value: process.env.YTcookies }
 ];
 
-// const agent = ytdl.createAgent(cookies);
+const agent = ytdl.createAgent(cookies);
 
 const videoPrefixes = [
     `https://youtu.be/`,
@@ -89,6 +89,7 @@ class AudioModule {
         this.client = client;
         this.messageRoomId = messageRoomId;
         this.voiceConnection = undefined;
+        this.connectionChannel = undefined;
         this.constructAudioPlayer();
         this.current = undefined;
         this.queue = [];
@@ -101,6 +102,7 @@ class AudioModule {
         this.audioPlayer.on('error', async (err) => {
             const errorUrl = this.current ? this.current.url : ``;
             console.error(`Error: ${errorUrl} (${err.message})`);
+            console.log(err);
             // console.log("!!!!! Error event emitted (2)");
             const messageChannel = await this.client.channels.fetch(this.messageRoomId);
             await messageChannel.send(`AudioPlayer Error. Skipping ${errorUrl}...`);
@@ -135,6 +137,7 @@ class AudioModule {
             case `go`: await this.remoteJoin({interaction}); break;
             case `inform`: await this.informRole({interaction}); break;
             case `uninformall`: await this.uninformAllRoles({interaction}); break;
+            case `migrate`: await this.migrate({interaction}); break;
         }
     }
 
@@ -151,11 +154,15 @@ class AudioModule {
     }
 
     handleJoin(channel) {
+        if (!!this.voiceConnection) {
+            this.voiceConnection.destroy();
+        }
         this.voiceConnection = joinVoiceChannel({
             channelId: channel.id,
             guildId: channel.guildId,
             adapterCreator: channel.guild.voiceAdapterCreator
         });
+        this.connectionChannel = channel;
         this.voiceConnection.subscribe(this.audioPlayer);
         this.voiceConnection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => {
             try {
@@ -187,7 +194,7 @@ class AudioModule {
             this.current = undefined;
             this.voiceConnection.destroy();
             delete this.voiceConnection;
-            // console.log(this.voiceConnection);
+            this.connectionChannel = undefined;
             this.clear({interaction: null, shouldReply: false});
             this.loop({interaction: null, shouldReply: false}); // disable loop
             this.audioPlayer.stop(true); // triggers processQueue() via Idle state
@@ -218,21 +225,28 @@ class AudioModule {
                 }
             }
             if (!!this.current) {
-                this.audioPlayer.play(createAudioResource(ytdl(
-                    this.current.url,
-                    {
-                        filter: 'audioonly',
-                        quality: 'highestaudio',
-                        highWaterMark: 1<<62,
-                        // agent: agent,
-                        opusEncoded: true,
-                        requestOptions: {
-                            headers: {
-                                cookie: process.env.YTcookies
-                            }
+                const resource = createAudioResource(
+                    ytdl(
+                        this.current.url,
+                        {
+                            filter: 'audioonly',
+                            quality: 'highestaudio',
+                            highWaterMark: 1<<62,
+                            agent: agent,
+                            // opusEncoded: true,
+                            // requestOptions: {
+                            //     headers: {
+                            //         cookie: process.env.YTcookies
+                            //     }
+                            // }
                         }
+                    ), {
+                        inlineVolume: true
                     }
-                )));
+                );
+                resource.volume.setVolume(0.08); // to save users' ears during normal convos
+                // console.log(resource);
+                this.audioPlayer.play(resource);
                 this.playingStatus = true;
             }
         }
@@ -531,6 +545,21 @@ class AudioModule {
             await interaction.reply(`Untracked \`${voiceName}\` activity for all roles.`);
         } else {
             await interaction.reply(`No changes made.`);
+        }
+    }
+
+    async migrate({interaction}) {
+        const targetChannel = interaction.options.getChannel(`destination`);
+        if (!!this.connectionChannel && this.connectionChannel.guildId === targetChannel.guildId && 
+                this.connectionChannel.id !== targetChannel.id) {
+            const members = Array.from(this.connectionChannel.members.values()).filter(member => member.id !== this.client.user.id);
+            this.handleJoin(targetChannel);
+            for (const member of members) {
+                member.voice.setChannel(targetChannel);
+            }
+            await interaction.reply(`Migrated ${members.length} users into \`${targetChannel.name}\`.`);
+        } else {
+            await interaction.reply(`Unable to migrate voice channels.`)
         }
     }
 
