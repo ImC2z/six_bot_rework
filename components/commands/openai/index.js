@@ -53,14 +53,16 @@ class OpenAIModule {
         }
     }
 
-    async constructLongMessage(remainingMessage, replyMethod) {
-        if (remainingMessage.length > 2000) {
-            const cutoff = remainingMessage.slice(0, 1900).lastIndexOf(` `);
-            const nextInteraction = await replyMethod(remainingMessage.slice(0, cutoff) + `...`);
+    async constructLongMessage(message, replyMethod) {
+        if (message.length > 2000) {
+            const cutoff = message.slice(0, 1900).lastIndexOf(`\n\n`);
+            const cutoffMessage = message.slice(0, cutoff);
+            const remainingMessage = message.slice(cutoff + 2);
+            const nextInteraction = await replyMethod(cutoffMessage + ` ...`);
             const replyToInteraction = async (message) => await nextInteraction.reply(message);
-            await this.constructLongMessage(remainingMessage.slice(cutoff + 1), replyToInteraction);
+            await this.constructLongMessage(remainingMessage, replyToInteraction);
         } else {
-            await replyMethod(remainingMessage);
+            await replyMethod(message);
         }
     }
 
