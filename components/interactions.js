@@ -27,8 +27,13 @@ class Interactions {
         if (interaction.type === InteractionType.ApplicationCommand) {
             for (const category of Object.keys(this.modules)) {
                 if (this.commands[category].includes(interaction.commandName)) {
-                    await this.modules[category].processCommands(interaction);
-                    return;
+                    try {
+                        await this.modules[category].processCommands(interaction);
+                    } catch (err) {
+                        console.log(err);
+                    } finally {
+                        return;
+                    }
                 }
             }
             switch(interaction.commandName) {
