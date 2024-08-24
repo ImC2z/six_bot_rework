@@ -37,7 +37,7 @@ class Interactions {
                 }
             }
             switch(interaction.commandName) {
-                case `help`: this.help(interaction); break;
+                case `help`: await this.help(interaction); break;
             }
         }
     }
