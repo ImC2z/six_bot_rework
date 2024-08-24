@@ -42,7 +42,7 @@ const scheduledEvents = new ScheduledEvents({client, audioModule: interactions.m
 
 async function clientShutdown() {
     await interactions.close();
-    // await client.channels.cache.get(homeTalkChannel).send(`*has gone offline*`);
+    await client.channels.cache.get(homeTalkChannel).send(`*has gone offline*`);
     await client.destroy();
     console.log(`Program: prg is kill 2`);
     process.exit();
@@ -57,7 +57,7 @@ client.on('ready', async () => {
     presences.onReady();
     scheduledEvents.onReady();
     let textChannel = await client.channels.fetch(interactions.messageRoomId);
-    // await textChannel.send(`*has come online*`);
+    await textChannel.send(`*has come online*`);
     
     async function start() {
         for await (const line of rl) {
@@ -69,6 +69,10 @@ client.on('ready', async () => {
         await clientShutdown();
     }
     start();
+});
+
+client.on(`error`, (err) => {
+    console.log(err);
 });
 
 client.on(`interactionCreate`, interactions.processCommands);
