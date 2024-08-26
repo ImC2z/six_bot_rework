@@ -36,7 +36,7 @@ class OpenAIModule {
                 const { content: response } = completion.choices[0].message;
                 const replyMessage = `OpenAI: ${response} (tokens used: ${prompt_tokens} In, ${completion_tokens} Out)`;
                 const editReplyToInteraction = async (message) => await interaction.editReply(message);
-                await this.constructLongMessage(replyMessage, editReplyToInteraction);
+                await this.processLongMessage(replyMessage, editReplyToInteraction);
             }
 //             const replyMessage = `Lorem ipsum dolor sit amet. Ut eius rerum est maxime inventore et sunt galisum et commodi sequi nam minus voluptas est aliquam consequuntur. In sapiente voluptas sed quibusdam unde sed nisi cumque a ipsa totam! Aut vero natus aut quam velit quo corrupti voluptas ut dolorem voluptas et eaque veniam et nisi voluptatem eum omnis tenetur. Ea corrupti necessitatibus ut nemo enim ut ratione quos quo placeat cumque aut dolore modi et architecto amet cum eius dolorum. Id commodi asperiores vel quod nisi qui ipsa repudiandae ea omnis repudiandae a aliquam rerum. Ut quia laboriosam nam incidunt velit nam fugiat voluptatem rem provident omnis quo minima rerum. Qui nemo voluptatem et dolores distinctio et magnam consequuntur ut neque debitis. Et eveniet odio et voluptatem natus ut praesentium animi 33 culpa minus ea voluptatibus dolores ut nemo quaerat. Et galisum molestiae in veritatis eaque eum delectus quia. Et soluta rerum ut voluptas nostrum 33 perferendis ducimus et ipsum reprehenderit quo perspiciatis rerum est saepe laborum sit architecto minima. Aut iusto illum eos repudiandae odit et nostrum reprehenderit aut tenetur adipisci quo dolor nulla et minima consequatur. Et obcaecati quia et alias dolorum et rerum corporis sed reiciendis consequuntur non dolore distinctio sed vitae quia ut rerum cupiditate? Ad repellendus atque vel reiciendis illum sed voluptas culpa et dolorem omnis. Aut provident Quis rem placeat itaque et neque eius.
 
@@ -53,18 +53,56 @@ class OpenAIModule {
         }
     }
 
-    async constructLongMessage(message, replyMethod) {
-        if (message.length > 2000) {
-            const cutoff = message.slice(0, 1900).lastIndexOf(`\n\n`);
-            const cutoffMessage = message.slice(0, cutoff);
-            const remainingMessage = message.slice(cutoff + 2);
-            const nextInteraction = await replyMethod(cutoffMessage + ` ...`);
+    async processLongMessage(message, replyMethod) {
+        const paragraphs = message.split(`\n\n`);
+        let combining = false;
+        const combinedParagraphs = paragraphs.reduce((prev, current) => {
+            if (combining && prev.length) {
+                prev[prev.length - 1] += `\n\n` + current;
+            } else {
+                prev.push(current);
+            }
+            if (current.includes(`\`\`\``)) {
+                combining = !combining;
+            }
+            return prev;
+        }, []);
+        const messageBlocks = combinedParagraphs.reduce((prev, current) => {
+            if (prev.length && (prev[prev.length - 1] + `\n\n` + current).length < 2000) {
+                prev[prev.length - 1] += `\n\n` + current;
+            } else {
+                prev.push(current);
+            }
+            return prev;
+        }, []);
+        await this.sendLongMessage(messageBlocks, replyMethod);
+    }
+
+    async sendLongMessage(messageBlocks, replyMethod) {
+        const messageBlock = messageBlocks.shift();
+        const nextInteraction = await replyMethod(messageBlock);
+        if (messageBlocks.length) {
             const replyToInteraction = async (message) => await nextInteraction.reply(message);
-            await this.constructLongMessage(remainingMessage, replyToInteraction);
-        } else {
-            await replyMethod(message);
+            await this.sendLongMessage(messageBlocks, replyToInteraction);
         }
     }
+
+    // async constructLongMessage(message, replyMethod) {
+    //     if (message.length > 2000) {
+    //         const cutoff = message.slice(0, 1900).lastIndexOf(`\n\n`);
+    //         let cutoffMessage = message.slice(0, cutoff);
+    //         let remainingMessage = message.slice(cutoff + 2);
+    //         if (cutoffMessage.match()) {
+    //             cutoffMessage += `*`;
+    //             remainingMessage = `*` + remainingMessage;
+    //         }
+    //         const nextInteraction = await replyMethod(cutoffMessage + ` ...`);
+    //         const replyToInteraction = async (message) => await nextInteraction.reply(message);
+    //         await this.constructLongMessage(remainingMessage, replyToInteraction);
+    //     } else {
+    //         await replyMethod(message);
+    //     }
+    // }
 
     close() {
 
