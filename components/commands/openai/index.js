@@ -54,6 +54,7 @@ class OpenAIModule {
     }
 
     async processLongMessage(message, replyMethod) {
+        const countOccurrences = (string, search) => (string.match(new RegExp(search, `g`)) || []).length;
         const paragraphs = message.split(`\n\n`);
         let combining = false;
         const combinedParagraphs = paragraphs.reduce((prev, current) => {
@@ -62,7 +63,10 @@ class OpenAIModule {
             } else {
                 prev.push(current);
             }
-            if (current.includes(`\`\`\``)) {
+            // if (current.includes(`\`\`\``)) {
+            //     combining = !combining;
+            // }
+            if (countOccurrences(current, `\`\`\``) % 2 === 1) { // odd occurrences to toggle combining
                 combining = !combining;
             }
             return prev;
