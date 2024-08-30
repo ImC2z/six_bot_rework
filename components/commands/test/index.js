@@ -1,3 +1,9 @@
+require('dotenv').config();
+const { EmbedBuilder } = require("discord.js");
+const getWeather = require("../../../api/getWeather");
+const searchPlaces = require('../../../api/searchPlaces');
+const staticMap = require('../../../api/staticMap');
+
 class TestModule {
     constructor({client, messageRoomId}) {
         this.client = client;
@@ -10,6 +16,7 @@ class TestModule {
             case `crashbang`: await this.crashbang(interaction); break;
             case `iatest`: await this.iatest(interaction); break;
             case `r`: await this.repeat(interaction); break;
+            case `weather`: await this.weather({interaction}); break;
         }
     }
 
@@ -20,7 +27,7 @@ class TestModule {
     async crashbang(interaction) {
         await interaction.deferReply();
         await interaction.deleteReply();
-        interaction.channel.send(`*dies*`);
+        await interaction.channel.send(`*dies*`);
     }
 
     async iatest(interaction) {
@@ -29,6 +36,43 @@ class TestModule {
 
     async repeat(interaction) {
         await interaction.reply(`${interaction.options.getString(`message`)}`);
+    }
+
+    async weather({interaction}) {
+        await interaction.deferReply();
+        const queryLocation = interaction.options.getString(`location`);
+        try {
+            const {
+                formatted_address,
+                name,
+                location
+            } = await searchPlaces(queryLocation);
+            const {
+                // locationName,
+                temp,
+                feels_like,
+                temp_min,
+                temp_max
+            } = await getWeather(location);
+            const mapThumbnailURL = staticMap(location);
+            const replyContent = new EmbedBuilder()
+            .setTitle(`${name} (${formatted_address})`)
+            .setColor([255, 247, 0]) // #fff800
+            .setThumbnail(mapThumbnailURL)
+            .addFields(
+                { 
+                    name: `Temperature (°C)`, 
+                    value: `- Actual: ${temp}
+- Feels like: ${feels_like}
+- Min: ${temp_min}
+- Max: ${temp_max}`
+                }
+            );
+            await interaction.editReply({embeds: [replyContent]});
+        } catch (err) {
+            await interaction.editReply(err.message);
+            console.log(err);
+        }
     }
 
     close() {
