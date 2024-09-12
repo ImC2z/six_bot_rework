@@ -2,9 +2,14 @@ require('dotenv').config();
 const axios = require('axios');
 module.exports = ({lat, lng}) => {
     return new Promise((resolve, reject) => {
-        const apiKey = process.env.weatherapikey;
-        const units = 'metric'
-        axios.get(encodeURI(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appId=${apiKey}&units=${units}`))
+        const queryParams = {
+            appId: process.env.weatherapikey,
+            lat,
+            lon: lng,
+            units: `metric`
+        };
+        const queryString = Object.entries(queryParams).map(([k, v]) => `${k}=${v}`).join(`&`);
+        axios.get(encodeURI(`https://api.openweathermap.org/data/2.5/weather?${queryString}`))
             .then(({data}) => {
                 //find min max
                 if (data.cod === 200) {
