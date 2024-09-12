@@ -80,7 +80,7 @@ class OpenAIModule {
             if (prev.length && (prev[prev.length - 1] + `\n\n` + current).length < 1950) {
                 prev[prev.length - 1] += `\n\n` + current;
             } else {
-                if (codeBlockActive) {
+                if (prev.length && codeBlockActive) {
                     prev[prev.length - 1] += `\`\`\``;
                     prev.push(`\`\`\`${codeBlockLang}\n` + current);
                 } else {
