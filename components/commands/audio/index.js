@@ -244,7 +244,7 @@ class AudioModule {
                         inlineVolume: true
                     }
                 );
-                resource.volume.setVolume(0.08); // to save users' ears during normal convos
+                // resource.volume.setVolume(0.08); // to save users' ears during normal convos
                 // console.log(resource);
                 this.audioPlayer.play(resource);
                 this.playingStatus = true;
@@ -552,7 +552,7 @@ class AudioModule {
         const targetChannel = interaction.options.getChannel(`destination`);
         if (!!this.connectionChannel && this.connectionChannel.guildId === targetChannel.guildId && 
                 this.connectionChannel.id !== targetChannel.id) {
-            const members = Array.from(this.connectionChannel.members.values()).filter(member => member.id !== this.client.user.id);
+            const members = this.connectionChannel.members.map(a => a).filter(member => member.id !== this.client.user.id);
             this.handleJoin(targetChannel);
             for (const member of members) {
                 member.voice.setChannel(targetChannel);
