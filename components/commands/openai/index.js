@@ -56,26 +56,36 @@ class OpenAIModule {
     async processLongMessage(message, replyMethod) {
         const countOccurrences = (string, search) => (string.match(new RegExp(search, `g`)) || []).length;
         const paragraphs = message.split(`\n\n`);
-        let combining = false;
-        const combinedParagraphs = paragraphs.reduce((prev, current) => {
-            if (combining && prev.length) {
-                prev[prev.length - 1] += `\n\n` + current;
-            } else {
-                prev.push(current);
-            }
-            // if (current.includes(`\`\`\``)) {
-            //     combining = !combining;
-            // }
+        let codeBlockActive = false;
+        // const combinedParagraphs = paragraphs.reduce((prev, current) => {
+        //     if (combining && prev.length) {
+        //         prev[prev.length - 1] += `\n\n` + current;
+        //     } else {
+        //         prev.push(current);
+        //     }
+        //     // if (current.includes(`\`\`\``)) {
+        //     //     combining = !combining;
+        //     // }
+        //     if (countOccurrences(current, `\`\`\``) % 2 === 1) { // odd occurrences to toggle combining
+        //         combining = !combining;
+        //     }
+        //     return prev;
+        // }, []);
+        let codeBlockLang = undefined;
+        const messageBlocks = paragraphs.reduce((prev, current) => {
             if (countOccurrences(current, `\`\`\``) % 2 === 1) { // odd occurrences to toggle combining
-                combining = !combining;
+                codeBlockActive = !codeBlockActive;
+                codeBlockLang = codeBlockActive ? current.match(/```(.*)\n/)[1] : undefined;
             }
-            return prev;
-        }, []);
-        const messageBlocks = combinedParagraphs.reduce((prev, current) => {
-            if (prev.length && (prev[prev.length - 1] + `\n\n` + current).length < 2000) {
+            if (prev.length && (prev[prev.length - 1] + `\n\n` + current).length < 1950) {
                 prev[prev.length - 1] += `\n\n` + current;
             } else {
-                prev.push(current);
+                if (codeBlockActive) {
+                    prev[prev.length - 1] += `\`\`\``;
+                    prev.push(`\`\`\`${codeBlockLang}\n` + current);
+                } else {
+                    prev.push(current);
+                }
             }
             return prev;
         }, []);
