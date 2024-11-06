@@ -8,6 +8,11 @@ const chat = new SlashCommandBuilder()
     .setDescription(`request for OpenAI to answer`)
     .setRequired(true)
     .setMaxLength(300)
+)
+.addBooleanOption(option => 
+    option.setName(`prepend_last_responses`)
+    .setDescription(`prepend/store responses to enable chat persistence`)
+    .setRequired(false)
 );
 
 module.exports = chat;
