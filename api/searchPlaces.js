@@ -31,4 +31,4 @@ const searchPlaces = (queryLocation) => new Promise((resolve, reject) => {
     })
 });
 
-module.exports= searchPlaces;
+module.exports = searchPlaces;
