@@ -40,7 +40,7 @@ const chainLoad = async (listId, pageToken) => {
         if (!!nextPageToken) {
             return [
                 ...videosData,
-                ...await chainLoad(listId, nextPageToken)
+                ...chainLoad(listId, nextPageToken)
             ];
         }
         return videosData;
