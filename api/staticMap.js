@@ -1,3 +1,10 @@
+/**
+ * Takes a location coordinate pair object and returns a map thumbnail URL of requested location.
+ * @param {Object} location Location object containing latitude and longitude
+ * @param {number} location.lat Latitude coordinate
+ * @param {number} location.lng Longitude coordinate
+ * @returns {string} URL of generated map thumbnail
+ */
 const staticMap = ({lat, lng}) => {
     const queryParams = {
         key: process.env.googleapikey,

@@ -1,6 +1,14 @@
 require('dotenv').config();
 const axios = require('axios');
-module.exports = ({lat, lng}) => {
+
+/**
+ * Queries OpenWeatherMap API with location coordinates to retrieve location temperature.
+ * @param {Object} location Location object containing latitude and longitude
+ * @param {number} location.lat Latitude coordinate
+ * @param {number} location.lng Longitude coordinate
+ * @returns {Promise<{temp: number, feels_like: number, temp_min: number, temp_max: number}>} Temperature data
+ */
+const getWeather = ({lat, lng}) => {
     return new Promise((resolve, reject) => {
         const queryParams = {
             appId: process.env.weatherapikey,
@@ -33,4 +41,6 @@ module.exports = ({lat, lng}) => {
                 reject(err)
             });
     })
-}
+};
+
+module.exports = getWeather;

@@ -1,17 +1,32 @@
-const { EmbedBuilder, GuildScheduledEventStatus } = require(`discord.js`);
+const { EmbedBuilder, GuildScheduledEventStatus, GuildScheduledEvent } = require(`discord.js`);
+const AudioModule = require("./commands/audio");
 
+/**
+ * Server events module that periodically checks if any event has begun, informing users if so.
+ */
 class ScheduledEvents {
-    constructor({client, audioModule}) {
+    /**
+     * @param {Client} client Bot client
+     * @param {AudioModule} audioModule Audio Module object defined from Interactions
+     */
+    constructor(client, audioModule) {
         this.client = client;
         this.audioModule = audioModule;
         this.onEventCreate = this.onEventCreate.bind(this);
         this.checkForEvent = this.checkForEvent.bind(this);
     }
 
+    /**
+     * Begins checking for freshly started events every 30s.
+     */
     onReady() {
         setInterval(this.checkForEvent, 30_000);
     }
 
+    /**
+     * Event handler that informs relevant users about voice channel event creation if channel is tracked.
+     * @param {GuildScheduledEvent} guildEvent Newly created guild event
+     */
     async onEventCreate(guildEvent) {
         const trackedGuilds = this.audioModule.trackedVoiceChannels;
         const {channel, scheduledStartAt, name, description, guildId} = guildEvent;
@@ -30,6 +45,9 @@ class ScheduledEvents {
         }
     }
 
+    /**
+     * Periodic function that checks tracked guilds and voice channels for freshly started events.
+     */
     async checkForEvent() {
         const now = new Date();
         for (const guildId of Object.keys(this.audioModule.trackedVoiceChannels)) {

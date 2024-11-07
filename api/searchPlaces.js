@@ -1,6 +1,11 @@
 require(`dotenv`).config();
 const axios = require(`axios`);
 
+/**
+ * Searches a user-inputted location on Google Maps API and returns location name, address, and coordinates.
+ * @param {string} queryLocation User's searched location
+ * @returns {Promise<{formatted_address: string, name: string, location: {lat: number, lng: number}}>} Location details
+ */
 const searchPlaces = (queryLocation) => new Promise((resolve, reject) => {
     const queryParams = {
         key: process.env.googleapikey,
@@ -28,7 +33,7 @@ const searchPlaces = (queryLocation) => new Promise((resolve, reject) => {
     .catch(err => {
         console.log(err);
         reject(err);
-    })
+    });
 });
 
 module.exports = searchPlaces;

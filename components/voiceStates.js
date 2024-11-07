@@ -1,16 +1,33 @@
+const { Client, VoiceState } = require("discord.js");
+const AudioModule = require("./commands/audio");
+
 const VSUpdate = {
     firstEntry: 1,
     lastExit: 2,
     penultimateExit: 3
 };
 
+/**
+ * Voice states module that monitors for user/bot voicestate changes.
+ */
 class VoiceStates {
-    constructor({client, audioModule}) {
+    /**
+     * 
+     * @param {Client} client Bot client
+     * @param {AudioModule} audioModule Audio Module object defined from Interactions
+     */
+    constructor(client, audioModule) {
         this.client = client;
         this.audioModule = audioModule;
         this.onVoiceStateUpdate = this.onVoiceStateUpdate.bind(this);
     }
 
+    /**
+     * Analyzes user voicestate changes and returns array of actions.
+     * @param {VoiceState} oldVoiceState Original voicestate of user
+     * @param {VoiceState} newVoiceState Updated voicestate of user
+     * @returns {number[]} Array of actions taken by user
+     */
     getEntryLeaveActions(oldVoiceState, newVoiceState) {
         const {channelId: oldId, channel: oldChannel} = oldVoiceState;
         const {channelId: newId, channel: newChannel} = newVoiceState;
@@ -30,6 +47,11 @@ class VoiceStates {
         return actions;
     }
 
+    /**
+     * Sends informative messages about start/end of voice channel activities to relevant roles.
+     * @param {VoiceState} oldVoiceState Original voicestate of user
+     * @param {VoiceState} newVoiceState Updated voicestate of user
+     */
     async onVoiceStateUpdate(oldVoiceState, newVoiceState) {
         const {channelId: oldId, channel: oldChannel} = oldVoiceState;
         const {channelId: newId} = newVoiceState;

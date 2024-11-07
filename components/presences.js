@@ -1,38 +1,43 @@
-const { ActivityType } = require(`discord.js`);
+const { ActivityType, Presence, Client, Activity } = require(`discord.js`);
 
 const ownerId = `462200925973381124`;
 const musicApps = [`Spotify`];
 
+/**
+ * Monitors owner's presence and updates own presence accordingly.
+ */
 class Presences {
-    constructor({client}) {
+    /**
+     * @param {Client} client Bot client
+     */
+    constructor(client) {
         this.client = client;
         this.onPresenceUpdate = this.onPresenceUpdate.bind(this);
     }
 
+    /**
+     * Initializes bot default presence.
+     */
     onReady() {
         this.client.user.setActivity({ type: ActivityType.Playing, name: `with Mono` });
     }
 
+    /**
+     * Event handler monitors owner's presence in case of update.
+     * @param {Presence} oldPresence Original presence of user
+     * @param {Presence} newPresence Updated presence of user
+     */
     onPresenceUpdate(oldPresence, newPresence) {
         const pastActivities = oldPresence && oldPresence.activities, currentActivities = newPresence.activities;
-        // const wanted = [`name`, `details`, `state`, `assets`, `applicationId`];
-        // const filteredProps = (activity) => {
-        //     return Object.keys(activity)
-        //     .filter(key => wanted.includes(key))
-        //     .reduce((result, key) => {
-        //         result[key] = activity[key];
-        //         return result;
-        //     }, {});
-        // }
-        if (pastActivities !== currentActivities) {
-            // console.log(newPresence.user.username + `:`);
-            // console.log(currentActivities.map(activity => filteredProps(activity)));
-            if (newPresence.user.id === ownerId) {
-                this.onOwnerUpdate(currentActivities);
-            }
+        if (pastActivities !== currentActivities && newPresence.user.id === ownerId) {
+            this.onOwnerUpdate(currentActivities);
         }
     }
 
+    /**
+     * Triggers when owner presence update is detected
+     * @param {Activity[]} activities Array of user's current activities.
+     */
     onOwnerUpdate(activities) {
         const watchable = activities.filter(activity => !!activity.applicationId);
         const listenable = activities.filter(activity => musicApps.includes(activity.name));
