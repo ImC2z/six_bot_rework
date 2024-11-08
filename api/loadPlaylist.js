@@ -1,8 +1,5 @@
 require('dotenv').config();
 const axios = require('axios');
-const apiKey = process.env.googleapikey;
-const part = 'snippet'
-const maxResults = 50
 
 /**
  * Takes a YT playlist ID and retrieves details of all videos within.
