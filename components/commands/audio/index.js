@@ -425,7 +425,7 @@ class AudioModule {
     async addPlaylist(interaction, id, putInFront, optShuffle) {
         try {
             await interaction.deferReply();
-            const videosData = loadPlaylist(id);
+            const videosData = await loadPlaylist(id);
             this.queue = putInFront ? [...videosData, ...this.queue] : [...this.queue, ...videosData];
             if (optShuffle) {
                 this.queue = shuffle(this.queue);

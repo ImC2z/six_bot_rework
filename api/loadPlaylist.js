@@ -10,7 +10,7 @@ const maxResults = 50
  * @returns {{title: string, url: string}[]} Array of video details
  * @throws Will throw error if e.g. playlist with ID is not found
  */
-const loadPlaylist = listId => chainLoad(listId, ``);
+const loadPlaylist = async listId => await chainLoad(listId, ``);
 
 /**
  * Recursive helper function that builds whole array of playlist items, 50 at a time.
@@ -21,7 +21,7 @@ const loadPlaylist = listId => chainLoad(listId, ``);
  */
 const chainLoad = async (listId, pageToken) => {
     const queryParams = {
-        apiKey: process.env.googleapikey,
+        key: process.env.googleapikey,
         part: `snippet`,
         maxResults: 50,
         pageToken: pageToken,
@@ -40,7 +40,7 @@ const chainLoad = async (listId, pageToken) => {
         if (!!nextPageToken) {
             return [
                 ...videosData,
-                ...chainLoad(listId, nextPageToken)
+                ...await chainLoad(listId, nextPageToken)
             ];
         }
         return videosData;
