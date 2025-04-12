@@ -7,7 +7,7 @@ const chat = new SlashCommandBuilder()
     option.setName(`query`)
     .setDescription(`request for OpenAI to answer`)
     .setRequired(true)
-    .setMaxLength(300)
+    .setMaxLength(3000)
 )
 .addBooleanOption(option => 
     option.setName(`prepend_last_responses`)
