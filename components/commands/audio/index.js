@@ -348,7 +348,7 @@ class AudioModule {
                     await this.addPlaylist(interaction, getPlaylistId(query), putInFront, optShuffle)
                     .catch(async (err) => await interaction.reply(err));
                 } else {
-                    await ytSearch({query, resultType})
+                    await ytSearch(query, resultType)
                     .then(async (id) => {
                         if (id.kind === `youtube#video`) { // is video
                             await this.addVideo(interaction, id.videoId, putInFront, optShuffle);
