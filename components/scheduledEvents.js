@@ -30,7 +30,7 @@ class ScheduledEvents {
     async onEventCreate(guildEvent) {
         const trackedGuilds = this.audioModule.trackedVoiceChannels;
         const {channel, scheduledStartAt, name, description, guildId} = guildEvent;
-        if (!!trackedGuilds[guildId] && !!trackedGuilds[guildId].voiceChannels[channel.id]) {
+        if (!!trackedGuilds[guildId] && !!trackedGuilds[guildId].voiceChannels[channel?.id]) {
             const {roles, text} = trackedGuilds[guildId].voiceChannels[channel.id];
             const embed = new EmbedBuilder()
             .setColor([255, 247, 0]) // #fff800
@@ -39,7 +39,7 @@ class ScheduledEvents {
             .setDescription(!!description ? description : null);
             const textChannel = await this.client.channels.fetch(text.textId);
             await textChannel.send({
-                content: `${Object.keys(roles).map(role => `<@&${role}>`).join(` `)} VC Event created at \`${channel.name}\`, starting at ${scheduledStartAt}.`,
+                content: `${Object.keys(roles).map(role => `<@&${role}>`).join(` `)} VC Event created at \`${channel.name}\`, starting at <t:${Math.round(scheduledStartAt.getTime() / 1000)}:F>.`,
                 embeds: [embed]
             });
         }
