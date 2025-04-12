@@ -99,7 +99,7 @@ class OpenAIModule {
     }
 
     /**
-     * Recursive helper function that chains reply/editReply to user interaction
+     * Recursive helper function that chains reply/editReply to user interaction.
      * @param {string[]} messageBlocks Array of reduced message blocks for each reply/editReply
      * @param {Function} replyMethod Callback to reply/editReply to previous interaction
      */
