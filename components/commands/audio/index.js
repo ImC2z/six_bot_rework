@@ -306,7 +306,7 @@ class AudioModule {
                         inlineVolume: true
                     }
                 );
-                // resource.volume.setVolume(0.08); // to save users' ears during normal convos
+                resource.volume.setVolume(0.06); // to save users' ears during normal convos
                 // console.log(resource);
                 this.audioPlayer.play(resource);
                 this.playingStatus = true;
